@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package com.dpforge.safeserializable.verifier;
+
+import javax.annotation.ParametersAreNonnullByDefault;

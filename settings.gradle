@@ -1,0 +1,4 @@
+rootProject.name = 'safe-serializable'
+
+include ':core', ':sample'
+

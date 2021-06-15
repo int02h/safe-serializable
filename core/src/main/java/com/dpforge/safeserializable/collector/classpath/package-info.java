@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package com.dpforge.safeserializable.collector.classpath;
+
+import javax.annotation.ParametersAreNonnullByDefault;
