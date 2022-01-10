@@ -16,6 +16,7 @@ public interface CheckHandler {
 
     /**
      * Called every time a non-serializable class is found
+     *
      * @param nonSerializableClass class that does not implement {@link Serializable}
      * @param dereferencePath path that leads to {@code nonSerializableClass} through the chain of dereferences
      */

@@ -24,17 +24,32 @@ public class AssertionErrorCheckHandler extends MapBasedCheckHandler {
         errorMap.entrySet()
                 .stream()
                 .sorted(Comparator.comparing(o -> o.getKey().getName()))
-                .forEach(entry -> {
-                    builder.append("Class ")
-                            .append(entry.getKey().getName())
-                            .append(" does not implement ")
-                            .append(Serializable.class.getName())
-                            .append("\n");
-                    builder.append("Dereference paths:\n");
-                    for (DereferencePath dereferencePath : entry.getValue()) {
-                        builder.append("- ").append(dereferencePath.getRepresentation()).append("\n");
-                    }
-                });
+                .forEach(entry -> appendEntry(builder, entry));
         return builder.toString();
+    }
+
+    private static void appendEntry(StringBuilder builder, Map.Entry<Class<?>, List<DereferencePath>> entry) {
+        if (builder.length() != 0) {
+            builder.append("\n");
+        }
+        if (entry.getKey().isInterface()) {
+            builder.append("Interface ")
+                    .append(entry.getKey().getName())
+                    .append(" does not extend ")
+                    .append(Serializable.class.getName())
+                    .append(" and no registered implementation of it implements ")
+                    .append(Serializable.class.getName())
+                    .append("\n");
+        } else {
+            builder.append("Class ")
+                    .append(entry.getKey().getName())
+                    .append(" does not implement ")
+                    .append(Serializable.class.getName())
+                    .append("\n");
+        }
+        builder.append("Dereference paths:\n");
+        for (DereferencePath dereferencePath : entry.getValue()) {
+            builder.append("- ").append(dereferencePath.getRepresentation()).append("\n");
+        }
     }
 }

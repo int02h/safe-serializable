@@ -22,9 +22,11 @@ public class AssertionErrorCheckHandlerTest {
                 "Class com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$A does not implement java.io.Serializable\n" +
                         "Dereference paths:\n" +
                         "- com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$A.a\n" +
+                        "\n" +
                         "Class com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$B does not implement java.io.Serializable\n" +
                         "Dereference paths:\n" +
                         "- com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$B.b\n" +
+                        "\n" +
                         "Class com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$C does not implement java.io.Serializable\n" +
                         "Dereference paths:\n" +
                         "- com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$C.c\n"
@@ -47,6 +49,7 @@ public class AssertionErrorCheckHandlerTest {
                         "Dereference paths:\n" +
                         "- com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$A.a\n" +
                         "- com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$A.a2\n" +
+                        "\n" +
                         "Class com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$B does not implement java.io.Serializable\n" +
                         "Dereference paths:\n" +
                         "- com.dpforge.safeserializable.handler.AssertionErrorCheckHandlerTest$B.b\n" +

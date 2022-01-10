@@ -2,7 +2,6 @@ package com.dpforge.safeserializable.verifier;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -21,10 +20,10 @@ public class SerializableVerifier {
             // This makes no sense to check class if we don't know actual type arguments. This class can be
             // instantiated in any place in the code with any arguments that might be non-serializable. It is very
             // difficult to check all caller-side places.
-            return new VerificationResult(Collections.emptyList());
+            return new VerificationResult();
         }
         verifyClass(context, classInfo);
-        return new VerificationResult(context.errors);
+        return context.toResult();
     }
 
     private void verifyClass(Context context, ClassInfo classInfo) {
@@ -38,7 +37,12 @@ public class SerializableVerifier {
         }
 
         if (!classInfo.isSerializable()) {
-            context.setNotSerializable(classInfo.getWrappedClass());
+            if (classInfo.isInterface()) {
+                // TODO check interface type arguments if any
+                context.onInterfaceFound(classInfo);
+            } else {
+                context.onNotSerializableFound(classInfo);
+            }
             return;
         }
 
@@ -67,6 +71,7 @@ public class SerializableVerifier {
 
         private final Stack<FieldInfo> fieldInfoStack = new Stack<>();
         private final List<VerificationError> errors = new ArrayList<>();
+        private final List<VerificationWarning> warnings = new ArrayList<>();
 
         void startField(FieldInfo fieldInfo) {
             fieldInfoStack.push(fieldInfo);
@@ -76,7 +81,26 @@ public class SerializableVerifier {
             fieldInfoStack.pop();
         }
 
-        void setNotSerializable(Class<?> clazz) {
+        void onNotSerializableFound(ClassInfo classInfo) {
+            errors.add(
+                    new VerificationError(
+                            classInfo.getWrappedClass(),
+                            buildDereferencePath()
+                    )
+            );
+        }
+
+        void onInterfaceFound(ClassInfo classInfo) {
+            warnings.add(
+                    new VerificationWarning(
+                            VerificationWarning.Type.INTERFACE,
+                            classInfo.getWrappedClass(),
+                            buildDereferencePath()
+                    )
+            );
+        }
+
+        private DereferencePath buildDereferencePath() {
             DereferencePath.Builder builder = new DereferencePath.Builder();
 
             if (!fieldInfoStack.isEmpty()) {
@@ -84,7 +108,12 @@ public class SerializableVerifier {
                     builder.addField(fieldInfo.getField());
                 }
             }
-            errors.add(new VerificationError(clazz, builder.build()));
+
+            return builder.build();
+        }
+
+        VerificationResult toResult() {
+            return new VerificationResult(errors, warnings);
         }
     }
 

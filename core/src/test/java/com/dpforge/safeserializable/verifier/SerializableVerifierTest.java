@@ -3,6 +3,7 @@ package com.dpforge.safeserializable.verifier;
 import org.junit.Test;
 
 import java.io.Serializable;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsSame.sameInstance;
@@ -68,13 +69,29 @@ public class SerializableVerifierTest {
     }
 
     @Test
+    public void verify_fail_generic_argument() {
+        VerificationError error = verifySingleError(FailGenericArgument.class);
+        assertThat(error.getNonSerializableClass(), sameInstance(NonSerializable.class));
+        assertThat(
+                error.getDereferencePath().getRepresentation(),
+                is("com.dpforge.safeserializable.verifier.SerializableVerifierTest$FailGenericArgument.someGeneric.data2.nonSerializable")
+        );
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void verify_nested_generic() {
+        // TODO fix test
+        verifyOk(OkNestedGeneric.class);
+    }
+
+    @Test
     public void verify_transient() {
-        verifyOk(TransientField.class);
+        verifyOk(OkTransientField.class);
     }
 
     @Test
     public void verify_static() {
-        verifyOk(StaticField.class);
+        verifyOk(OkStaticField.class);
     }
 
     @Test
@@ -83,15 +100,35 @@ public class SerializableVerifierTest {
         verifyOk(SomeGeneric.class);
     }
 
+    @Test
+    public void verify_interface() {
+        VerificationWarning warning = verifySingleWarning(OkInterface.class);
+        assertThat(warning.getType(), is(VerificationWarning.Type.INTERFACE));
+        assertThat(warning.getNonSerializableClass(), sameInstance(List.class));
+        assertThat(
+                warning.getDereferencePath().getRepresentation(),
+                is("com.dpforge.safeserializable.verifier.SerializableVerifierTest$OkInterface.list")
+        );
+    }
+
     private void verifyOk(Class<?> clazz) {
         assertThat(new SerializableVerifier().verifyClass(clazz).isOk(), is(true));
     }
 
     private VerificationError verifySingleError(Class<?> clazz) {
         VerificationResult result = new SerializableVerifier().verifyClass(clazz);
-        assertThat(result.isFail(), is(true));
+        assertThat(result.isOk(), is(false));
         assertThat(result.getErrors().size(), is(1));
+        assertThat(result.getWarnings().size(), is(0));
         return result.getErrors().get(0);
+    }
+
+    private VerificationWarning verifySingleWarning(Class<?> clazz) {
+        VerificationResult result = new SerializableVerifier().verifyClass(clazz);
+        assertThat(result.isOk(), is(false));
+        assertThat(result.getErrors().size(), is(0));
+        assertThat(result.getWarnings().size(), is(1));
+        return result.getWarnings().get(0);
     }
 
     private static class NonSerializable {
@@ -146,11 +183,23 @@ public class SerializableVerifierTest {
         }
     }
 
-    private static class TransientField implements Serializable {
+    private static class FailGenericArgument implements Serializable {
+        SomeGeneric<OkPrimitives, FailB> someGeneric;
+    }
+
+    private static class OkNestedGeneric implements Serializable {
+        SomeGeneric<OkPrimitives, SomeGeneric<OkString, OkWrappers>> doubleGeneric;
+    }
+
+    private static class OkTransientField implements Serializable {
         transient NonSerializable nonSerializable;
     }
 
-    private static class StaticField implements Serializable {
+    private static class OkStaticField implements Serializable {
         static NonSerializable nonSerializable;
+    }
+
+    private static class OkInterface implements Serializable {
+        List<String> list;
     }
 }

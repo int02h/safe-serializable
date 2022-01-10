@@ -38,6 +38,10 @@ class ClassInfo {
         return new ClassInfo(clazz.getComponentType());
     }
 
+    boolean isInterface() {
+        return clazz.isInterface();
+    }
+
     // Maybe use java.lang.Iterable for better performance (no need to create separate array)
     FieldInfo[] getDeclaredFields() {
         Field[] originalFields = clazz.getDeclaredFields();
